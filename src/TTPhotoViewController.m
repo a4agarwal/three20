@@ -86,6 +86,7 @@ static const NSInteger kActivityLabelTag = 96;
   playButton.enabled = _photoSource.numberOfPhotos > 1;
   _previousButton.enabled = _centerPhotoIndex > 0;
   _nextButton.enabled = _centerPhotoIndex >= 0 && _centerPhotoIndex < _photoSource.numberOfPhotos-1;
+  _deleteButton.enabled = _photoSource.numberOfPhotos > 0;
 }
 
 - (void)updateToolbarWithOrientation:(UIInterfaceOrientation)interfaceOrientation {
@@ -267,6 +268,38 @@ static const NSInteger kActivityLabelTag = 96;
   }
 }
 
+
+-(void)deleteFromSource
+{
+	[_photoSource deletePhotoAtIndex:_centerPhotoIndex+1];
+	[self updateChrome];
+}
+
+- (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
+{
+	if (!buttonIndex == [actionSheet cancelButtonIndex])
+		{
+			[_photoSource deletePhotoAtIndex:_centerPhotoIndex];
+			//[self previousAction];
+			[self showActivity:nil];
+			[self moveToNextValidPhoto];
+			[_scrollView reloadData];
+			[self refresh];
+		}
+}
+
+- (void)deleteAction {
+	UIActionSheet *actionSheet = [[UIActionSheet alloc] 
+								  initWithTitle:@"Are you sure you want to delete this photo?" 
+								  delegate:self 
+								  cancelButtonTitle:@"Cancel"
+								  destructiveButtonTitle:@"OK"
+								  otherButtonTitles: nil];
+	
+	[actionSheet showInView:self.view];
+	[actionSheet release];
+}
+
 - (void)showBarsAnimationDidStop {
   self.navigationController.navigationBarHidden = NO;
 }
@@ -304,6 +337,7 @@ static const NSInteger kActivityLabelTag = 96;
     _captionStyle = nil;
     _nextButton = nil;
     _previousButton = nil;
+	_deleteButton = nil;
     _statusText = nil;
     _thumbsController = nil;
     _slideshowTimer = nil;
@@ -365,6 +399,10 @@ static const NSInteger kActivityLabelTag = 96;
     TTIMAGE(@"bundle://Three20.bundle/images/previousIcon.png")
      style:UIBarButtonItemStylePlain target:self action:@selector(previousAction)];
 
+  _deleteButton = [[UIBarButtonItem alloc] initWithImage:
+					   TTIMAGE(@"bundle://Three20.bundle/images/deleteIcon.png")
+													   style:UIBarButtonItemStylePlain target:self action:@selector(deleteAction)];
+	
   UIBarButtonItem* playButton = [[[UIBarButtonItem alloc] initWithBarButtonSystemItem:
     UIBarButtonSystemItemPlay target:self action:@selector(playAction)] autorelease];
   playButton.tag = 1;
@@ -378,7 +416,7 @@ static const NSInteger kActivityLabelTag = 96;
   _toolbar.barStyle = self.navigationBarStyle;
   _toolbar.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleTopMargin;
   _toolbar.items = [NSArray arrayWithObjects:
-                   space, _previousButton, space, _nextButton, space, nil];
+                   space, _previousButton, space, _nextButton, space, _deleteButton, nil];
   [_innerView addSubview:_toolbar];    
 }
 
@@ -391,6 +429,7 @@ static const NSInteger kActivityLabelTag = 96;
   TT_RELEASE_SAFELY(_photoStatusView);
   TT_RELEASE_SAFELY(_nextButton);
   TT_RELEASE_SAFELY(_previousButton);
+  TT_RELEASE_SAFELY(_deleteButton);
   TT_RELEASE_SAFELY(_toolbar);
 }
 

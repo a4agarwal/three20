@@ -40,6 +40,11 @@ typedef enum {
  */
 - (id<TTPhoto>)photoAtIndex:(NSInteger)index;
 
+/**
+ *
+ */
+- (void)deletePhotoAtIndex:(NSInteger)index;
+
 @end
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
