@@ -269,17 +269,12 @@ static const NSInteger kActivityLabelTag = 96;
 }
 
 
--(void)deleteFromSource
-{
-	[_photoSource deletePhotoAtIndex:_centerPhotoIndex+1];
-	[self updateChrome];
-}
-
 - (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
 {
 	if (!buttonIndex == [actionSheet cancelButtonIndex])
 		{
-			[_photoSource deletePhotoAtIndex:_centerPhotoIndex];
+			//NSLog([NSString stringWithFormat:@"%d", _scrollView.centerPageIndex]);
+			[_photoSource deletePhotoAtIndex:_scrollView.centerPageIndex];
 			//[self previousAction];
 			[self showActivity:nil];
 			[self moveToNextValidPhoto];
